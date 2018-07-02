@@ -1,0 +1,22 @@
+{
+  "name": "simple-tunel",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/serioga-ninja/simple-tunel.git"
+  },
+  "author": "serioga",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/serioga-ninja/simple-tunel/issues"
+  },
+  "homepage": "https://github.com/serioga-ninja/simple-tunel#readme",
+  "dependencies": {
+    "request": "^2.87.0"
+  }
+}
