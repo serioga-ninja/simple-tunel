@@ -1,60 +1,48 @@
+/// <reference path="./index.d.ts" />
 import * as http from 'http';
 import * as net from 'net';
 
-http.createServer(onRequest).listen(3210);
+const client = net.createConnection({ port: 8124 }, () => {
+  // 'connect' listener
+  console.log('connected to server!');
+});
 
-function onRequest(client_req: http.IncomingMessage, client_res: http.ServerResponse) {
-  console.log('serve: ' + client_req.url);
+client.on('data', (data) => {
+  let IncomingMessage: Tunel.Interfaces.ISocketForwardMessage = JSON.parse(data.toString());
+
+  console.log('serve: ' + IncomingMessage.path);
   
   let headersToForward = ['content-type', 'content-length', 'cookie'];
 
   var options = {
     hostname: 'localhost',
     port: 3333,
-    path: client_req.url,
-    method: client_req.method,
+    path: IncomingMessage.path,
+    method: IncomingMessage.method,
     headers: <any>{
         'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
+        ...IncomingMessage.headers
     }
   };
-  headersToForward.forEach(headerName => {
-    if(client_req.headers[headerName] !== undefined) {
-        options.headers[headerName] = client_req.headers[headerName];
-    }
-  });
 
   var proxy = http.request(options, function (res) {
+    let data: any;
 
-    Object.keys(res.headers).forEach(key => {
-        client_res.setHeader(key, res.headers[key]);
+    res.on('data', (chunk: string) => {
+        console.log(chunk);
     });
-    client_res.statusCode = res.statusCode;
 
-    res.pipe(client_res, {
-      end: true
+    res.on('end', (chunk: string) => {
+      client.write(JSON.stringify(<Tunel.Interfaces.ISockeResponseMessage>{
+        id: IncomingMessage.id,
+        data: {
+          headers: res.headers,
+          statusCode: res.statusCode,
+          body: data
+      }
+      }) + '\r\n')
     });
   });
-
-
-
-  client_req.on('data', (data) => {
-    proxy.write(data.toString());
-  });
-
-  client_req.on('end', () => {
-    proxy.end();
-  });
-}
-
-const client = net.createConnection({ port: 8124 }, () => {
-  // 'connect' listener
-  console.log('connected to server!');
-  client.write('world!\r\n');
-});
-
-client.on('data', (data) => {
-  console.log(data.toString());
-  client.end();
 });
 
 client.on('end', () => {
