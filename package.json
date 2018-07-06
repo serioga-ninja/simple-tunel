@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:client": "node -r ts-node/register ./src/client.ts",
+    "start:server": "node -r ts-node/register ./src/server.ts"
   },
   "repository": {
     "type": "git",
@@ -21,6 +23,7 @@
   },
   "devDependencies": {
     "@types/node": "^6.0.113",
-    "ts-node": "^7.0.0"
+    "ts-node": "^7.0.0",
+    "typescript": "^2.9.2"
   }
 }
